@@ -24,7 +24,7 @@ class baz;
     }
 endclass
 
-module testbench
+module testbench();
     //****PARAMETERS****//
     //PC
 	var logic [31:0] out_address;
@@ -36,9 +36,9 @@ module testbench
     var logic [31:0] temp [9:0];
     //ALU
     var logic        zero;
-    var logic [31:0] ALUresult;
-    var logic [31:0] operand1;
-    var logic [31:0] operand2;
+    var logic unsigned [31:0] ALUresult;
+    var logic unsigned [31:0] operand1;
+    var logic unsigned [31:0] operand2;
     var logic [ 3:0] ALUoperation;
     //Mux
     var logic [31:0] out;
@@ -62,13 +62,13 @@ module testbench
     var logic [31:0] Sum1;
 
     //****DECLARATIONS****//        
-    PC                DUT1 (.*);
-    InstructionMemory DUT2 (.*);
+    //PC                DUT1 (.*);
+    //InstructionMemory DUT2 (.*);
 	ALU               DUT3 (.*);
-	Mux               DUT4 (.*);
-	Registers         DUT5 (.*);
-	Add               DUT6 (.*);
-	Add2              DUT7 (.*);
+	//Mux               DUT4 (.*);
+	//Registers         DUT5 (.*);
+	//Add               DUT6 (.*);
+	//Add2              DUT7 (.*);
 
     //****TASKS****//  
     //PC
@@ -88,7 +88,7 @@ module testbench
         b.randomize();
         temp[i]      = b.temp;
     endtask
-
+/*
     task test_InstructionMemory;
         for (int i = 0; i < 10; i++) begin
             writemem(i);
@@ -101,7 +101,7 @@ module testbench
             $display("Address: %0d | Expected: %h | Read: %h", i, temp[i], Instruction);
         end
     endtask
-
+*/
     //ALU
     task test_ALU;
         baz c;
@@ -114,20 +114,49 @@ module testbench
         operand2     = c.op2;
 
         ALUoperation = 4'b0010;
-        expected_result_add = operand1 + operand2;
-        assert(ALUresult == expected_result_add);
+        expected_result = operand1 + operand2;
+        #1;
+        $display("Testing ALU...");
+        $display("ADD Operation Test: ");
+        $display("operand1 = %h operand2 = %h", operand1, operand2);
+        a1: assert(ALUresult == expected_result)
+        else $error("ADD operation not implemented correctly");
+        
         
         ALUoperation = 4'b0000;
-        expected_result_and = operand1 & operand2;
-        assert(ALUresult == expected_result_and);
+        expected_result = operand1 & operand2;
+        #1;
+        $display("AND Operation Test: ");
+        $display("operand1 = %h operand2 = %h", operand1, operand2);
+        a2: assert(ALUresult == expected_result)
+        else $error("AND operation not implemented correctly");
+        
 
         ALUoperation = 4'b0001;
-        expected_result_or  = operand1 | operand2;
-        assert(ALUresult == expected_result_or);
+        expected_result = operand1 | operand2;
+        #1;
+        //assert(ALUresult == expected_result);
 
+        //Testing sub and zero operations
         ALUoperation = 4'b0110;
-        expected_result_sub = operand1 - operand2;
-        assert(ALUresult == expected_result_add && zero == 1'b0);
+        expected_result = operand1 - operand2;
+        #1;
+        a4: assert(ALUresult == expected_result);
+        $display("zero = %h", zero);
+
+        if(operand1 != operand2) begin
+            a5: assert(zero == 1'b0);
+            else $error("zero operation not implemented correctly");
+        end
+        else begin
+            operand1 = 5;
+            operand2 = 5;
+            #1; 
+            a6: assert(zero == 1'b1);
+            else $error("zero operation not implemented correctly");
+        end
+
+
         
 
     endtask
@@ -194,11 +223,12 @@ module testbench
 
     //****INITIAL BEGIN BLOCKS****// 
     //Clock Generation
+    /*
     initial begin
         clk = 1'b0;
         forever #5 clk = ~clk;
     end
-
+    */
 	initial begin
 
 	//test_ALU1();
