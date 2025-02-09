@@ -1,11 +1,11 @@
 class baz;
     rand bit [31:0] in_add;
     rand bit [31:0] temp;
-	rand bit [31:0] op1;
-	rand bit [31:0] op2;
+    rand bit [31:0] op1;
+    rand bit [31:0] op2;
     rand bit [ 3:0] aluop;
     rand bit [31:0] i1;
-	rand bit [31:0] i2;
+    rand bit [31:0] i2;
     rand bit        m2r;
     rand bit [ 4:0] readr1; 
     rand bit [ 4:0] readr2;
@@ -13,7 +13,7 @@ class baz;
     rand bit [31:0] writed;
     rand bit        regw;
     rand bit [31:0] op11;
-	rand bit [31:0] op22;
+    rand bit [31:0] op22;
     rand bit [31:0] op111;
 
     constraint readr1_constraint { readr1 inside {[4'd0:4'd15]}; }
@@ -61,10 +61,10 @@ module testbench();
     var logic[31:0] operand111;
     var logic [31:0] Sum1;
 
-    //****DECLARATIONS****//        
+    //****Module Instantiation****//        
     //PC                DUT1 (.*);
     //InstructionMemory DUT2 (.*);
-	ALU               DUT3 (.*);
+    ALU               DUT3 (.*);
 	//Mux               DUT4 (.*);
 	//Registers         DUT5 (.*);
 	//Add               DUT6 (.*);
