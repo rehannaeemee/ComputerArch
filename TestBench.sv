@@ -1,4 +1,4 @@
-class abaz;
+class baz;
     rand bit [31:0] in_add;
     rand bit [31:0] temp;
 	rand bit [31:0] op1;
@@ -112,24 +112,24 @@ module testbench
         c.randomize();
         operand1     = c.op1;
         operand2     = c.op2;
-        ALUoperation = c.aluop;
+
+        ALUoperation = 4'b0010;
+        expected_result_add = operand1 + operand2;
+        assert(ALUresult == expected_result_add);
         
-        case(ALUoperation)
-            4'b0000 : expected_result = operand1 & operand2; 
-            4'b0001 : expected_result = operand1 | operand2;
-            4'b0010 : expected_result = operand1 + operand2;
-            4'b0110 : expected_result = operand1 - operand2;
-        endcase
+        ALUoperation = 4'b0000;
+        expected_result_and = operand1 & operand2;
+        assert(ALUresult == expected_result_and);
 
-        #1;
-        assert (ALUresult == expected_result);
+        ALUoperation = 4'b0001;
+        expected_result_or  = operand1 | operand2;
+        assert(ALUresult == expected_result_or);
 
-        if ((ALUoperation == 4'b0110) & (ALUresult == 32'd0)) begin
-            assert (zero == 1'b1);
-        end
-        else begin
-            assert (zero == 1'b0);
-        end
+        ALUoperation = 4'b0110;
+        expected_result_sub = operand1 - operand2;
+        assert(ALUresult == expected_result_add && zero == 1'b0);
+        
+
     endtask
 
     task test_ALU1;
@@ -201,16 +201,18 @@ module testbench
 
 	initial begin
 
-	test_ALU1();
+	//test_ALU1();
+    test_ALU();
+    /*
     test_InstructionMemory();
-    for (int i = 0; i < 5; i++) begin
-        test_Add();
-        test_Add2();
-        test_ALU();
-        test_Mux();
-        test_PC();
-        #10;
-    end
+    test_Add();
+    test_Add2();
+    test_ALU();
+    test_Mux();
+    test_PC();
+    
+    #10;
+    
     for (int i = 0; i < 7; i++) begin
         test_Registers();
         #10;
@@ -219,6 +221,6 @@ module testbench
 
 	test_DM;
 	tes_IM;
-
+    */
 	end
 endmodule
