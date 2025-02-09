@@ -1,4 +1,4 @@
-class baz;
+class abaz;
     rand bit [31:0] in_add;
     rand bit [31:0] temp;
     rand bit [31:0] op1;
