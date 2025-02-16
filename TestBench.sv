@@ -1,4 +1,4 @@
-class abaz;
+class baz;
     rand bit [31:0] in_add;
     rand bit [31:0] temp;
     rand bit [31:0] op1;
@@ -15,11 +15,17 @@ class abaz;
     rand bit [31:0] op11;
     rand bit [31:0] op22;
     rand bit [31:0] op111;
+    rand bit [31:0] addrDM;
+    rand bit [31:0] data;
+    rand bit [31:0] a;
 
+    constraint addrDM_constraint { addrDM inside {[32'h000:32'h7FC]}; } 
+    // Ensure address is a multiple of 4 (last two bits must be 00)
+    constraint multiple_of_4     { addrDM[1:0] == 2'b00; }
     constraint readr1_constraint { readr1 inside {[4'd0:4'd15]}; }
     constraint readr2_constraint { readr2 inside {[4'd0:4'd15]}; }
     constraint writer_constraint { writer inside {[4'd0:4'd15]}; }
-	constraint aluop_constraint {
+	constraint aluop_constraint  {
         aluop inside {4'b0000, 4'b0001, 4'b0010, 4'b0110};
     }
 endclass
@@ -36,9 +42,9 @@ module testbench();
     var logic [31:0] temp [9:0];
     //ALU
     var logic        zero;
-    var logic unsigned [31:0] ALUresult;
-    var logic unsigned [31:0] operand1;
-    var logic unsigned [31:0] operand2;
+    var logic [31:0] ALUresult;
+    var logic [31:0] operand1;
+    var logic [31:0] operand2;
     var logic [ 3:0] ALUoperation;
     //Mux
     var logic [31:0] out;
@@ -58,17 +64,28 @@ module testbench();
     var logic [31:0] operand11;
     var logic [31:0] operand22;
     //Adder2
-    var logic[31:0] operand111;
+    var logic [31:0] operand111;
     var logic [31:0] Sum1;
+    //DataMemory
+    var logic        MemWrite;
+    var logic        MemRead;
+    var logic [31:0] address;
+    var logic [31:0] writeData;
+    var logic [31:0] readData;
+    //Immediate Generator
+    var logic [31:0] instruction;
+    var logic [31:0] imm_val;
 
     //****Module Instantiation****//        
     //PC                DUT1 (.*);
     //InstructionMemory DUT2 (.*);
-    ALU               DUT3 (.*);
+    //ALU               DUT3 (.*);
 	//Mux               DUT4 (.*);
 	//Registers         DUT5 (.*);
 	//Add               DUT6 (.*);
 	//Add2              DUT7 (.*);
+    DataMemory        DUT8 (.*);
+    //imm_gen           DUT9 (.*);
 
     //****TASKS****//  
     //PC
@@ -82,13 +99,13 @@ module testbench();
     endtask
 
     //Instruction Memory
-    task writemem(int i);
+/*    task writemem(int i);
         baz b;
         b            = new();
         b.randomize();
         temp[i]      = b.temp;
     endtask
-/*
+
     task test_InstructionMemory;
         for (int i = 0; i < 10; i++) begin
             writemem(i);
@@ -101,7 +118,7 @@ module testbench();
             $display("Address: %0d | Expected: %h | Read: %h", i, temp[i], Instruction);
         end
     endtask
-*/
+
     //ALU
     task test_ALU;
         baz c;
@@ -155,10 +172,6 @@ module testbench();
             a6: assert(zero == 1'b1);
             else $error("zero operation not implemented correctly");
         end
-
-
-        
-
     endtask
 
     task test_ALU1;
@@ -220,20 +233,47 @@ module testbench();
         #1;
         assert(Sum1 == operand111 + 32'd4);
     endtask
-
+*/
+    //DataMemory
+    task test_DM;
+        baz i;
+        i            = new();
+        i.randomize();
+        address      = i.addrDM;
+        writeData    = i.data;
+        MemWrite     = 1;
+        #10;
+        MemWrite     = 0;
+        MemRead      = 1;
+    endtask
+    
+    //Immediate Generator
+    task test_imm_gen;
+        baz x;
+        x            = new();
+        x.randomize();
+        instruction  = x.a;
+    endtask
+    
     //****INITIAL BEGIN BLOCKS****// 
     //Clock Generation
-    /*
+
     initial begin
         clk = 1'b0;
         forever #5 clk = ~clk;
     end
-    */
+
 	initial begin
+    test_DM();
+/*
+    for (int i = 0; i < 5; i++) begin
+        test_imm_gen();
+        #10;
+    end
 
 	//test_ALU1();
-    test_ALU();
-    /*
+    //test_ALU();
+    
     test_InstructionMemory();
     test_Add();
     test_Add2();
@@ -248,9 +288,6 @@ module testbench();
         #10;
         $display("Read_data1 = %h, Read_data2 = %h", Read_data1, Read_data2);
     end
-
-	test_DM;
-	tes_IM;
     */
 	end
 endmodule
